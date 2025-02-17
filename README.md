@@ -65,7 +65,7 @@ On Windows, download Kafka and start it:
 {kafka_path}\bin\windows\zookeeper-server-start.bat 
 
 # Start Kafka
-{kafka_path}\bin\windows\kafka-server-start.bat D:\kafka_2.13-3.9.0\config\server.properties
+{kafka_path}\bin\windows\kafka-server-start.bat
 
 # Create Kafka topic
 {kafka_path}\bin\windows\kafka-topics.bat --create --topic order-topic --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
@@ -79,7 +79,7 @@ mvn spring-boot:run
 ### 4️. Test APIs (Using Postman or CURL)
 #### **Create a New Product (POST)**
 ```bash
-POST "http://localhost:8080/products/create" -d "name={product_name} &stock={stock_quantity}"
+POST "http://localhost:8080/products/create?name={product_name}&stock={stock_quantity}"
 ```
 
 #### **Place an Order (POST)**
