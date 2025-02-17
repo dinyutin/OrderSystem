@@ -172,7 +172,7 @@ spring.datasource.password=password
 {kafka路徑下}\bin\windows\zookeeper-server-start.bat 
 
 # 啟動 Kafka
-{kafka路徑下}\bin\windows\kafka-server-start.bat D:\kafka_2.13-3.9.0\config\server.properties
+{kafka路徑下}\bin\windows\kafka-server-start.bat 
 
 # 建立 Kafka topic
 {kafka路徑下}\bin\windows\kafka-topics.bat --create --topic order-topic --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
