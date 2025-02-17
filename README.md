@@ -186,7 +186,7 @@ mvn spring-boot:run
 ### 4️.測試 API（使用 Postman 或 CURL）
 ####  **新增商品POST**
 ```bash
- POST "http://localhost:8080/products/create" -d "name={商品名稱} &stock={庫存數量}"
+ POST "http://localhost:8080/products/create?name={商品名稱}&stock={庫存數量}"
 ```
 
 ####  **用戶下訂單POST**
