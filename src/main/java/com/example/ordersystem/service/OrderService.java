@@ -16,7 +16,11 @@ public class OrderService {
     }
 
     public OrderResponse createOrder(long productId, int quantity) {
-        return transactionService.createOrder(productId, quantity);
+        return createOrder(productId, quantity, null);
+    }
+
+    public OrderResponse createOrder(long productId, int quantity, String idempotencyKey) {
+        return transactionService.createOrder(productId, quantity, idempotencyKey);
     }
 
     public OrderResponse getOrder(String orderId) {

@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import java.time.Duration;
 
 @Service
 public class KafkaProducerService {
@@ -16,15 +17,14 @@ public class KafkaProducerService {
     }
 
     public void publishOrderCreated(OrderCreatedEvent event) {
-        kafkaTemplate.send("order-created", event.orderId(), event)
-                .whenComplete((result, error) -> {
-                    if (error != null) {
-                        log.error("Failed to publish order-created event: orderId={}", event.orderId(), error);
-                        return;
-                    }
-                    log.info("Published order-created event: orderId={}, partition={}, offset={}",
-                            event.orderId(), result.getRecordMetadata().partition(),
-                            result.getRecordMetadata().offset());
-                });
+        try {
+            var result = kafkaTemplate.send("order-created", event.orderId(), event)
+                    .get(Duration.ofSeconds(3).toMillis(), java.util.concurrent.TimeUnit.MILLISECONDS);
+            log.info("Published order-created event: orderId={}, partition={}, offset={}",
+                    event.orderId(), result.getRecordMetadata().partition(),
+                    result.getRecordMetadata().offset());
+        } catch (Exception exception) {
+            throw new IllegalStateException("Kafka publish failed", exception);
+        }
     }
 }

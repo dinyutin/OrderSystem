@@ -21,7 +21,7 @@ class OrderServiceTest {
     @Test
     void delegatesOrderCreationToTransactionalService() {
         OrderResponse expected = new OrderResponse("order-1", 7L, 2, "COMPLETED");
-        when(transactionService.createOrder(7L, 2)).thenReturn(expected);
+        when(transactionService.createOrder(7L, 2, null)).thenReturn(expected);
         assertEquals(expected, service.createOrder(7L, 2));
     }
 

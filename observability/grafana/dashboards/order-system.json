@@ -52,6 +52,30 @@
       "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
       "targets": [{"expr": "process_cpu_usage", "legendFormat": "CPU"}],
       "fieldConfig": {"defaults": {"unit": "percentunit", "min": 0, "max": 1}, "overrides": []}
+    },
+    {
+      "type": "timeseries",
+      "title": "Outbox delivery backlog",
+      "id": 7,
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 24},
+      "targets": [
+        {"expr": "outbox_pending", "legendFormat": "pending"},
+        {"expr": "outbox_dead", "legendFormat": "dead"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Redis fallback failures",
+      "id": 8,
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 24},
+      "targets": [{"expr": "rate(redis_cache_failures_total[1m])", "legendFormat": "failures / sec"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Load shedding",
+      "id": 9,
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 24},
+      "targets": [{"expr": "rate(order_bulkhead_rejected_total[1m])", "legendFormat": "HTTP 429 / sec"}]
     }
   ],
   "refresh": "5s",

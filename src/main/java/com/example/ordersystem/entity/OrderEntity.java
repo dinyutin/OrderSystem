@@ -22,13 +22,21 @@ public class OrderEntity {
     @Column(nullable = false)
     private String status;  // 訂單狀態 (Pending, Completed, Failed)
 
+    @Column(unique = true, length = 100)
+    private String idempotencyKey;
+
     public OrderEntity() {}
 
     public OrderEntity(String orderId, Long productId, int quantity, String status) {
+        this(orderId, productId, quantity, status, null);
+    }
+
+    public OrderEntity(String orderId, Long productId, int quantity, String status, String idempotencyKey) {
         this.orderId = orderId;
         this.productId = productId;
         this.quantity = quantity;
         this.status = status;
+        this.idempotencyKey = idempotencyKey;
     }
 
     // Getter & Setter
@@ -46,4 +54,6 @@ public class OrderEntity {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+    public String getIdempotencyKey() { return idempotencyKey; }
+    public void setIdempotencyKey(String idempotencyKey) { this.idempotencyKey = idempotencyKey; }
 }

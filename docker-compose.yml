@@ -56,6 +56,11 @@ services:
       DB_PASSWORD: order_password
       REDIS_HOST: redis
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      ORDER_MAX_CONCURRENT: 1000
+      SERVER_MAX_THREADS: 1000
+      SERVER_ACCEPT_COUNT: 1000
+      DB_POOL_MAX_SIZE: 100
+      SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT: 10000
     ports:
       - "8080:8080"
     depends_on:
@@ -99,6 +104,8 @@ services:
       - ./load-test:/scripts:ro
     environment:
       BASE_URL: http://app:8080
+      VUS: ${K6_VUS:-1000}
+      TOTAL_ORDERS: ${K6_TOTAL_ORDERS:-10000}
     command: ["run", "/scripts/order-load.js"]
     depends_on:
       - app

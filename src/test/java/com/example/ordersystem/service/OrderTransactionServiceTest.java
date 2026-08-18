@@ -3,14 +3,14 @@ package com.example.ordersystem.service;
 import com.example.ordersystem.dto.OrderResponse;
 import com.example.ordersystem.entity.OrderEntity;
 import com.example.ordersystem.entity.ProductEntity;
-import com.example.ordersystem.event.OrderCreatedEvent;
+import com.example.ordersystem.entity.OutboxEventEntity;
 import com.example.ordersystem.exception.InsufficientStockException;
 import com.example.ordersystem.exception.ProductNotFoundException;
 import com.example.ordersystem.repository.OrderRepository;
+import com.example.ordersystem.repository.OutboxEventRepository;
 import com.example.ordersystem.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
 
@@ -25,10 +25,10 @@ import static org.mockito.Mockito.when;
 class OrderTransactionServiceTest {
     private final ProductRepository productRepository = mock(ProductRepository.class);
     private final OrderRepository orderRepository = mock(OrderRepository.class);
-    private final ApplicationEventPublisher publisher = mock(ApplicationEventPublisher.class);
+    private final OutboxEventRepository outboxRepository = mock(OutboxEventRepository.class);
     private final OrderMetrics metrics = mock(OrderMetrics.class);
     private final OrderTransactionService service =
-            new OrderTransactionService(productRepository, orderRepository, publisher, metrics);
+            new OrderTransactionService(productRepository, orderRepository, outboxRepository, metrics);
 
     @Test
     void atomicallyDecrementsStockCreatesOrderAndPublishesEvent() {
@@ -42,10 +42,10 @@ class OrderTransactionServiceTest {
 
         assertEquals("COMPLETED", response.status());
         assertEquals(2, response.quantity());
-        ArgumentCaptor<OrderCreatedEvent> event = ArgumentCaptor.forClass(OrderCreatedEvent.class);
-        verify(publisher).publishEvent(event.capture());
-        assertEquals(response.orderId(), event.getValue().orderId());
-        assertEquals(8, event.getValue().remainingStock());
+        ArgumentCaptor<OutboxEventEntity> event = ArgumentCaptor.forClass(OutboxEventEntity.class);
+        verify(outboxRepository).save(event.capture());
+        assertEquals(response.orderId(), event.getValue().getAggregateId());
+        assertEquals(8, event.getValue().getRemainingStock());
     }
 
     @Test
@@ -64,5 +64,17 @@ class OrderTransactionServiceTest {
 
         assertThrows(InsufficientStockException.class, () -> service.createOrder(10L, 20));
         verify(orderRepository, never()).save(any());
+    }
+
+    @Test
+    void returnsExistingOrderForRepeatedIdempotencyKeyWithoutDecrementingAgain() {
+        OrderEntity existing = new OrderEntity("order-1", 10L, 2, "COMPLETED", "checkout-1");
+        when(orderRepository.findByIdempotencyKey("checkout-1")).thenReturn(Optional.of(existing));
+
+        OrderResponse response = service.createOrder(10L, 2, " checkout-1 ");
+
+        assertEquals("order-1", response.orderId());
+        verify(productRepository, never()).decrementStock(any(Long.class), any(Integer.class));
+        verify(outboxRepository, never()).save(any());
     }
 }
