@@ -1,0 +1,66 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Order API requests / sec",
+      "id": 1,
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "targets": [{"expr": "sum(rate(http_server_requests_seconds_count{uri=\"/api/orders\"}[1m])) by (status)", "legendFormat": "HTTP {{status}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Order API p95 latency",
+      "id": 2,
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "targets": [{"expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{uri=\"/api/orders\"}[1m])) by (le))", "legendFormat": "p95"}],
+      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []}
+    },
+    {
+      "type": "timeseries",
+      "title": "Business order results / sec",
+      "id": 3,
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "targets": [
+        {"expr": "sum(rate(orders_successful_total[1m]))", "legendFormat": "created"},
+        {"expr": "sum(rate(orders_rejected_total[1m])) by (reason)", "legendFormat": "rejected: {{reason}}"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "JVM heap usage",
+      "id": 4,
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "targets": [{"expr": "sum(jvm_memory_used_bytes{area=\"heap\"}) / sum(jvm_memory_max_bytes{area=\"heap\"})", "legendFormat": "heap"}],
+      "fieldConfig": {"defaults": {"unit": "percentunit", "min": 0, "max": 1}, "overrides": []}
+    },
+    {
+      "type": "timeseries",
+      "title": "Hikari connections",
+      "id": 5,
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "targets": [
+        {"expr": "hikaricp_connections_active", "legendFormat": "active"},
+        {"expr": "hikaricp_connections_pending", "legendFormat": "pending"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Process CPU usage",
+      "id": 6,
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+      "targets": [{"expr": "process_cpu_usage", "legendFormat": "CPU"}],
+      "fieldConfig": {"defaults": {"unit": "percentunit", "min": 0, "max": 1}, "overrides": []}
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 41,
+  "tags": ["spring-boot", "orders", "k6"],
+  "templating": {"list": []},
+  "time": {"from": "now-15m", "to": "now"},
+  "timezone": "browser",
+  "title": "Order System Load Test",
+  "uid": "order-system-load-test",
+  "version": 1
+}

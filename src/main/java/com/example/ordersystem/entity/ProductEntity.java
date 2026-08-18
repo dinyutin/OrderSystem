@@ -15,7 +15,8 @@ public class ProductEntity {
     @Column(unique = true, nullable = false)
     private String name;
 
-    private int stock;  //
+    @Column(nullable = false)
+    private int stock;
 
     public ProductEntity() {}
 
@@ -36,7 +37,7 @@ public class ProductEntity {
         return name;
     }
 
-    public void setName(String productId) {
+    public void setName(String name) {
         this.name = name;
     }
     public Long getProductId() {

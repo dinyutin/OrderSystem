@@ -17,13 +17,17 @@ public class OrderEntity {
     private Long productId;  // 商品 ID
 
     @Column(nullable = false)
+    private int quantity;
+
+    @Column(nullable = false)
     private String status;  // 訂單狀態 (Pending, Completed, Failed)
 
     public OrderEntity() {}
 
-    public OrderEntity(String orderId, Long productId, String status) {
+    public OrderEntity(String orderId, Long productId, int quantity, String status) {
         this.orderId = orderId;
         this.productId = productId;
+        this.quantity = quantity;
         this.status = status;
     }
 
@@ -36,6 +40,9 @@ public class OrderEntity {
 
     public Long getProductId() { return productId; }
     public void setProductId(Long productId) { this.productId = productId; }
+
+    public int getQuantity() { return quantity; }
+    public void setQuantity(int quantity) { this.quantity = quantity; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

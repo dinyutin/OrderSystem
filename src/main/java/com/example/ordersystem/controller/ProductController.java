@@ -1,14 +1,20 @@
 package com.example.ordersystem.controller;
 
-import com.example.ordersystem.entity.ProductEntity;
+import com.example.ordersystem.dto.CreateProductRequest;
+import com.example.ordersystem.dto.ProductResponse;
 import com.example.ordersystem.service.ProductService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import java.math.BigDecimal;
-import java.util.Optional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/api/products")
 public class ProductController {
     private final ProductService productService;
 
@@ -16,18 +22,19 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<ProductEntity> createProduct(
-            @RequestParam String name,
-            @RequestParam int stock) {
-        ProductEntity product = productService.createProduct(name, stock);
-        return ResponseEntity.ok(product);
-    }
-    @GetMapping("/{id}")
-    public ResponseEntity<ProductEntity> getProductById(@PathVariable Long id) {
-        Optional<ProductEntity> productOpt = productService.findProductById(id);
-        return productOpt.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    @PostMapping
+    public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody CreateProductRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ProductResponse.from(productService.createProduct(request.name(), request.stock())));
     }
 
+    @GetMapping("/{id}")
+    public ProductResponse getProduct(@PathVariable long id) {
+        return ProductResponse.from(productService.getRequiredProduct(id));
+    }
+
+    @GetMapping("/{id}/stock")
+    public ProductResponse getStock(@PathVariable long id) {
+        return productService.getProductWithCachedStock(id);
+    }
 }
