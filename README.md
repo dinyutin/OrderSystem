@@ -226,7 +226,7 @@ Docker Compose 的壓測環境將 `ORDER_MAX_CONCURRENT` 提高為 1,000，以�
 
 本機 Docker Compose 會啟動 1 個 Gateway 與 3 個 Order Service；Kubernetes 版本使用 2 個 Gateway、3 個 Order Service，並以 Service 做負載平衡。HPA 可依 CPU 將 Order Service 從 3 個擴到 10 個副本，PDB 在節點維護時至少保留 2 個可用副本，readiness probe 不會把未就緒 Pod 放入流量路徑。
 
-完整啟動、驗證分流、限流、故障切換、kind 部署與清理指令請看 [`docs/local-and-kubernetes-runbook.md`](docs/local-and-kubernetes-runbook.md)。
+完整啟動、驗證分流、限流、故障切換、kind 部署與清理指令請看 [`docs/local-and-kubernetes-runbook.md`](docs/local-and-kubernetes-runbook.md)。文件也逐項說明 Pod、Deployment、Service、Probe、HPA、PDB、PVC、RBAC、Prometheus discovery、完整流量路徑與排錯方式。
 
 ### 故障演練
 
