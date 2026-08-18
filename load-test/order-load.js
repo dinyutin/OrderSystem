@@ -44,6 +44,7 @@ export default function (data) {
     { headers: {
       'Content-Type': 'application/json',
       'Idempotency-Key': `load-${data.productId}-${exec.scenario.iterationInTest}`,
+      'X-Client-Id': `load-user-${exec.vu.idInTest}`,
     } },
   );
   const successful = check(response, {

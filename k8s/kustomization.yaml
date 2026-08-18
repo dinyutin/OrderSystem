@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - config.yaml
+  - infrastructure.yaml
+  - order-service.yaml
+  - gateway.yaml
+  - monitoring.yaml
+configMapGenerator:
+  - name: prometheus-config
+    namespace: order-system
+    files:
+      - prometheus.yml=monitoring/prometheus.yml
+  - name: grafana-datasource
+    namespace: order-system
+    files:
+      - datasource.yml=monitoring/datasource.yml
+  - name: grafana-dashboard-provider
+    namespace: order-system
+    files:
+      - provider.yml=monitoring/provider.yml
+  - name: grafana-dashboard
+    namespace: order-system
+    files:
+      - order-system.json=monitoring/order-system.json
+generatorOptions:
+  disableNameSuffixHash: true

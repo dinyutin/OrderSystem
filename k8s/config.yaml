@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: order-secrets
+  namespace: order-system
+type: Opaque
+stringData:
+  mysql-user: order_app
+  mysql-password: order_password
+  mysql-root-password: root_password
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: order-config
+  namespace: order-system
+data:
+  DB_URL: jdbc:mysql://mysql:3306/order_system?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+  REDIS_HOST: redis
+  KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  ORDER_MAX_CONCURRENT: "150"
+  SERVER_MAX_THREADS: "200"
+  SERVER_ACCEPT_COUNT: "300"
+  DB_POOL_MAX_SIZE: "25"
+  SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT: "10000"

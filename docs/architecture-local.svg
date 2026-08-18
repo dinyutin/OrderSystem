@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs><marker id="a" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#607d8b"/></marker><style>.t{font:700 30px Arial;fill:#172b4d}.s{font:20px Arial;fill:#344563}.b{fill:#fff;stroke:#4c6fff;stroke-width:3;rx:18}.d{fill:#edf2ff;stroke:#4c6fff;stroke-width:3;rx:18}.db{fill:#fff7e6;stroke:#ff991f;stroke-width:3;rx:18}.o{fill:#e3fcef;stroke:#00a86b;stroke-width:3;rx:18}.l{stroke:#607d8b;stroke-width:4;fill:none;marker-end:url(#a)}</style></defs>
+  <rect width="1600" height="900" fill="#f7f9fc"/><text x="70" y="70" class="t">Order System — Docker Compose 本機架構</text>
+  <rect x="70" y="150" width="230" height="110" class="b"/><text x="185" y="195" text-anchor="middle" class="t">Client / k6</text><text x="185" y="230" text-anchor="middle" class="s">1,000 VUs</text>
+  <rect x="390" y="135" width="300" height="140" class="d"/><text x="540" y="185" text-anchor="middle" class="t">API Gateway</text><text x="540" y="220" text-anchor="middle" class="s">Request ID · Redis 限流</text><text x="540" y="250" text-anchor="middle" class="s">Round-robin 負載平衡</text>
+  <path d="M300 205 H385" class="l"/>
+  <rect x="800" y="100" width="300" height="105" class="b"/><text x="950" y="145" text-anchor="middle" class="t">Order App 1</text><text x="950" y="180" text-anchor="middle" class="s">8082 → 8080</text>
+  <rect x="800" y="245" width="300" height="105" class="b"/><text x="950" y="290" text-anchor="middle" class="t">Order App 2</text><text x="950" y="325" text-anchor="middle" class="s">8083 → 8080</text>
+  <rect x="800" y="390" width="300" height="105" class="b"/><text x="950" y="435" text-anchor="middle" class="t">Order App 3</text><text x="950" y="470" text-anchor="middle" class="s">8084 → 8080</text>
+  <path d="M690 205 C750 205 740 152 795 152" class="l"/><path d="M690 205 C750 205 740 297 795 297" class="l"/><path d="M690 205 C750 205 740 442 795 442" class="l"/>
+  <rect x="1240" y="90" width="260" height="105" class="db"/><text x="1370" y="138" text-anchor="middle" class="t">MySQL</text><text x="1370" y="172" text-anchor="middle" class="s">訂單 + 庫存 + Outbox</text>
+  <rect x="1240" y="250" width="260" height="105" class="db"/><text x="1370" y="298" text-anchor="middle" class="t">Redis</text><text x="1370" y="332" text-anchor="middle" class="s">Cache + Rate limit</text>
+  <rect x="1240" y="410" width="260" height="105" class="db"/><text x="1370" y="458" text-anchor="middle" class="t">Kafka</text><text x="1370" y="492" text-anchor="middle" class="s">訂單事件</text>
+  <path d="M1100 152 H1235" class="l"/><path d="M1100 297 H1235" class="l"/><path d="M1100 442 H1235" class="l"/>
+  <rect x="500" y="650" width="260" height="105" class="o"/><text x="630" y="698" text-anchor="middle" class="t">Prometheus</text><text x="630" y="732" text-anchor="middle" class="s">抓取所有副本 metrics</text>
+  <rect x="920" y="650" width="260" height="105" class="o"/><text x="1050" y="698" text-anchor="middle" class="t">Grafana</text><text x="1050" y="732" text-anchor="middle" class="s">流量 · p95 · JVM · DB</text>
+  <path d="M950 500 C950 590 630 560 630 645" class="l"/><path d="M760 702 H915" class="l"/>
+</svg>

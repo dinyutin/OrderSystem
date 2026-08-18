@@ -1,3 +1,25 @@
+x-order-app: &order-app
+  build: .
+  image: order-system:local
+  environment: &order-environment
+    DB_URL: jdbc:mysql://mysql:3306/order_system?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    DB_USERNAME: order_app
+    DB_PASSWORD: order_password
+    REDIS_HOST: redis
+    KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    ORDER_MAX_CONCURRENT: 350
+    SERVER_MAX_THREADS: 350
+    SERVER_ACCEPT_COUNT: 500
+    DB_POOL_MAX_SIZE: 30
+    SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT: 10000
+  depends_on:
+    mysql:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+    kafka:
+      condition: service_healthy
+
 services:
   mysql:
     image: mysql:8.4
@@ -48,28 +70,47 @@ services:
       timeout: 10s
       retries: 20
 
-  app:
-    build: .
+  app1:
+    <<: *order-app
     environment:
-      DB_URL: jdbc:mysql://mysql:3306/order_system?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      DB_USERNAME: order_app
-      DB_PASSWORD: order_password
-      REDIS_HOST: redis
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      ORDER_MAX_CONCURRENT: 1000
-      SERVER_MAX_THREADS: 1000
-      SERVER_ACCEPT_COUNT: 1000
-      DB_POOL_MAX_SIZE: 100
-      SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT: 10000
+      <<: *order-environment
+      INSTANCE_ID: order-app-1
     ports:
-      - "8080:8080"
+      - "8082:8080"
+
+  app2:
+    <<: *order-app
+    environment:
+      <<: *order-environment
+      INSTANCE_ID: order-app-2
+    ports:
+      - "8083:8080"
+
+  app3:
+    <<: *order-app
+    environment:
+      <<: *order-environment
+      INSTANCE_ID: order-app-3
+    ports:
+      - "8084:8080"
+
+  gateway:
+    build: ./gateway
+    image: order-gateway:local
+    environment:
+      REDIS_HOST: redis
+      ORDER_INSTANCE_1: http://app1:8080
+      ORDER_INSTANCE_2: http://app2:8080
+      ORDER_INSTANCE_3: http://app3:8080
+      RATE_LIMIT_REPLENISH: ${GATEWAY_RATE_LIMIT:-5000}
+      RATE_LIMIT_BURST: ${GATEWAY_RATE_BURST:-5000}
+    ports:
+      - "8080:8081"
     depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
+      - app1
+      - app2
+      - app3
+      - redis
 
   prometheus:
     image: prom/prometheus:v3.4.0
@@ -79,7 +120,7 @@ services:
     ports:
       - "9091:9090"
     depends_on:
-      - app
+      - gateway
     profiles: ["observability"]
 
   grafana:
@@ -103,12 +144,12 @@ services:
     volumes:
       - ./load-test:/scripts:ro
     environment:
-      BASE_URL: http://app:8080
+      BASE_URL: http://gateway:8081
       VUS: ${K6_VUS:-1000}
       TOTAL_ORDERS: ${K6_TOTAL_ORDERS:-10000}
     command: ["run", "/scripts/order-load.js"]
     depends_on:
-      - app
+      - gateway
     profiles: ["loadtest"]
 
 volumes:

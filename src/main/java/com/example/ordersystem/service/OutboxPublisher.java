@@ -31,8 +31,7 @@ public class OutboxPublisher {
     @Scheduled(fixedDelayString = "${outbox.poll-interval-ms:1000}")
     @Transactional
     public void publishPending() {
-        for (OutboxEventEntity item : repository
-                .findTop100ByStatusAndNextAttemptAtLessThanEqualOrderById("PENDING", Instant.now())) {
+        for (OutboxEventEntity item : repository.lockNextBatch(Instant.now())) {
             try {
                 redisService.setStock(item.getProductId(), item.getRemainingStock());
                 producer.publishOrderCreated(new OrderCreatedEvent(

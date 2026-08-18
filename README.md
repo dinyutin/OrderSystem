@@ -4,54 +4,9 @@
 
 ## 核心設計
 
-```mermaid
-flowchart TB
-    subgraph Traffic[Traffic and load generation]
-        Client[API Client]
-        K6[k6<br/>1,000 VUs / 10,000 orders]
-    end
+![Local architecture](docs/architecture-local.svg)
 
-    subgraph Application[Spring Boot Order Service]
-        API[REST API<br/>Validation and error handling]
-
-        subgraph Transaction[MySQL transaction boundary]
-            OrderService[Order transaction service]
-            AtomicUpdate[Conditional stock decrement<br/>stock >= requested quantity]
-            CreateOrder[Create COMPLETED order]
-        end
-
-        Bulkhead[Order bulkhead<br/>overload returns HTTP 429]
-        OutboxWorker[Outbox relay<br/>retry with exponential backoff]
-        Metrics[Actuator and Micrometer]
-        Consumer[Kafka audit consumer]
-    end
-
-    subgraph Data[Data and messaging]
-        MySQL[(MySQL<br/>orders + stock + outbox)]
-        Redis[(Redis<br/>stock read cache)]
-        Kafka{{Kafka<br/>order-created topic}}
-    end
-
-    subgraph Observability[Observability]
-        Prometheus[Prometheus]
-        Grafana[Grafana dashboard]
-    end
-
-    Client --> API
-    K6 --> API
-    API --> Bulkhead --> OrderService
-    OrderService --> AtomicUpdate
-    AtomicUpdate --> MySQL
-    AtomicUpdate -->|updated row = 1| CreateOrder
-    CreateOrder -->|same transaction| MySQL
-    MySQL -->|poll pending events| OutboxWorker
-    OutboxWorker -.->|best-effort cache refresh| Redis
-    OutboxWorker -->|at-least-once publish| Kafka
-    Kafka --> Consumer
-    API -.-> Metrics
-    Metrics --> Prometheus
-    Prometheus --> Grafana
-```
+所有外部流量先進入 API Gateway。Gateway 負責 request ID、每個 client 的 Redis 限流與輪詢分流；三個 Order Service 副本共同使用 MySQL、Redis 與 Kafka。任一應用副本停止時，其餘副本仍可繼續服務。
 
 庫存正確性由 MySQL 原子條件更新保證，不使用商品級分布式鎖將所有請求串行化。
 
@@ -87,7 +42,8 @@ WHERE product_id = :productId
 - Apache Kafka
 - Actuator、Prometheus metrics
 - JUnit 5、Mockito
-- Docker Compose
+- Spring Cloud Gateway、LoadBalancer
+- Docker Compose、Kubernetes、HPA、PDB
 
 ## 啟動
 
@@ -172,8 +128,8 @@ docker compose --profile observability up -d --build
 
 | 服務 | 位址 |
 |---|---|
-| Spring Boot health | http://localhost:8080/actuator/health |
-| Prometheus metrics | http://localhost:8080/actuator/prometheus |
+| Gateway health | http://localhost:8080/actuator/health |
+| Order Service 1 / 2 / 3 | http://localhost:8082 / 8083 / 8084 |
 | Prometheus | http://localhost:9091 |
 | Grafana | http://localhost:3001（`admin` / `admin`） |
 
@@ -190,6 +146,12 @@ Grafana 會自動載入 `Order System Load Test` dashboard，包含：
 ### 1,000 users / 10,000 orders
 
 ![Order System 1,000-user load test](docs/order-system-1000-users-10000-orders.png)
+
+### Gateway + 3 application replicas
+
+![Gateway and three replicas load test](docs/order-system-gateway-1000-users-10000-orders.png)
+
+最新一次由 1,000 VUs 經 Gateway 建立 10,000 筆訂單：10,000 筆全數成功、HTTP failure 0%、庫存歸零、p95 1.71 秒、約 420 req/s。Grafana 中 Hikari 與 CPU 的多條線分別代表三個應用副本。
 
 完整的基準、失敗瓶頸與調校後數據保留於 [`docs/load-test-results.md`](docs/load-test-results.md)，不會只保留最後一次成功結果。
 
@@ -256,7 +218,15 @@ MySQL 是唯一 source of truth。Outbox delivery 採 at-least-once，因此正�
 
 Docker Compose 的壓測環境將 `ORDER_MAX_CONCURRENT` 提高為 1,000，以測試 1,000 VUs 全數完成；正式部署應依 CPU、DB pool 與壓測容量下修，而不是無限制放大。
 
-壓測環境的 Hikari pool 設為 100、connection timeout 設為 10 秒，讓超過資料庫即時容量的請求排隊，而不是在 1 秒內回傳 500；正式值需配合 MySQL `max_connections` 與實際服務副本數計算。
+壓測環境的三個應用副本各配置 Hikari pool 30（合計最多 90）、connection timeout 10 秒，讓超過資料庫即時容量的請求短暫排隊，而不是在 1 秒內回傳 500；正式值需配合 MySQL `max_connections` 與實際服務副本數計算。
+
+## Gateway、負載平衡與 Kubernetes
+
+![Kubernetes architecture](docs/architecture-kubernetes.svg)
+
+本機 Docker Compose 會啟動 1 個 Gateway 與 3 個 Order Service；Kubernetes 版本使用 2 個 Gateway、3 個 Order Service，並以 Service 做負載平衡。HPA 可依 CPU 將 Order Service 從 3 個擴到 10 個副本，PDB 在節點維護時至少保留 2 個可用副本，readiness probe 不會把未就緒 Pod 放入流量路徑。
+
+完整啟動、驗證分流、限流、故障切換、kind 部署與清理指令請看 [`docs/local-and-kubernetes-runbook.md`](docs/local-and-kubernetes-runbook.md)。
 
 ### 故障演練
 

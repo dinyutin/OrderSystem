@@ -2,3 +2,6 @@
 .idea
 target
 *.iml
+gateway
+k8s
+docs

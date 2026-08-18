@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-gateway
+  namespace: order-system
+spec:
+  replicas: 2
+  strategy:
+    rollingUpdate: {maxUnavailable: 0, maxSurge: 1}
+  selector:
+    matchLabels: {app: order-gateway}
+  template:
+    metadata:
+      labels: {app: order-gateway}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "8081"
+    spec:
+      containers:
+        - name: order-gateway
+          image: order-gateway:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - {name: http, containerPort: 8081}
+          env:
+            - {name: REDIS_HOST, value: redis}
+            - {name: ORDER_SERVICE_URI, value: "http://order-service:8080"}
+            - {name: RATE_LIMIT_REPLENISH, value: "5000"}
+            - {name: RATE_LIMIT_BURST, value: "5000"}
+          startupProbe:
+            httpGet: {path: /actuator/health/liveness, port: http}
+            failureThreshold: 30
+            periodSeconds: 5
+          readinessProbe:
+            httpGet: {path: /actuator/health/readiness, port: http}
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: {path: /actuator/health/liveness, port: http}
+            periodSeconds: 10
+          resources:
+            requests: {cpu: 200m, memory: 256Mi}
+            limits: {cpu: "1", memory: 512Mi}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-gateway
+  namespace: order-system
+spec:
+  type: NodePort
+  selector: {app: order-gateway}
+  ports:
+    - {name: http, port: 8081, targetPort: http, nodePort: 30080}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: order-gateway
+  namespace: order-system
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels: {app: order-gateway}

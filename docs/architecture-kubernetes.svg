@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs><marker id="a" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#607d8b"/></marker><style>.t{font:700 29px Arial;fill:#172b4d}.s{font:19px Arial;fill:#344563}.b{fill:#fff;stroke:#326ce5;stroke-width:3;rx:18}.d{fill:#deebff;stroke:#326ce5;stroke-width:3;rx:18}.db{fill:#fff7e6;stroke:#ff991f;stroke-width:3;rx:18}.o{fill:#e3fcef;stroke:#00a86b;stroke-width:3;rx:18}.l{stroke:#607d8b;stroke-width:4;fill:none;marker-end:url(#a)}</style></defs>
+  <rect width="1600" height="900" fill="#f7f9fc"/><text x="60" y="65" class="t">Order System — Kubernetes 本機叢集</text>
+  <rect x="45" y="145" width="210" height="100" class="b"/><text x="150" y="190" text-anchor="middle" class="t">Client / k6</text><text x="150" y="222" text-anchor="middle" class="s">localhost:8080</text>
+  <rect x="330" y="130" width="250" height="130" class="d"/><text x="455" y="177" text-anchor="middle" class="t">NodePort</text><text x="455" y="210" text-anchor="middle" class="s">Gateway Service</text><text x="455" y="238" text-anchor="middle" class="s">readiness endpoints</text><path d="M255 195 H325" class="l"/>
+  <rect x="675" y="105" width="250" height="100" class="b"/><text x="800" y="150" text-anchor="middle" class="t">Gateway Pod 1</text><text x="800" y="180" text-anchor="middle" class="s">限流 · 路由</text>
+  <rect x="675" y="235" width="250" height="100" class="b"/><text x="800" y="280" text-anchor="middle" class="t">Gateway Pod 2</text><text x="800" y="310" text-anchor="middle" class="s">PDB min 1</text>
+  <path d="M580 195 C625 195 625 155 670 155" class="l"/><path d="M580 195 C625 195 625 285 670 285" class="l"/>
+  <rect x="1010" y="155" width="250" height="100" class="d"/><text x="1135" y="200" text-anchor="middle" class="t">Order Service</text><text x="1135" y="232" text-anchor="middle" class="s">ClusterIP 負載平衡</text><path d="M925 205 H1005" class="l"/>
+  <rect x="1335" y="70" width="220" height="90" class="b"/><text x="1445" y="112" text-anchor="middle" class="t">Order Pod</text><text x="1445" y="140" text-anchor="middle" class="s">replica 1</text>
+  <rect x="1335" y="180" width="220" height="90" class="b"/><text x="1445" y="222" text-anchor="middle" class="t">Order Pod</text><text x="1445" y="250" text-anchor="middle" class="s">replica 2</text>
+  <rect x="1335" y="290" width="220" height="90" class="b"/><text x="1445" y="332" text-anchor="middle" class="t">Order Pod</text><text x="1445" y="360" text-anchor="middle" class="s">replica 3～10</text>
+  <path d="M1260 205 C1295 205 1295 115 1330 115" class="l"/><path d="M1260 205 H1330" class="l"/><path d="M1260 205 C1295 205 1295 335 1330 335" class="l"/>
+  <rect x="1335" y="430" width="220" height="95" class="d"/><text x="1445" y="472" text-anchor="middle" class="t">HPA</text><text x="1445" y="502" text-anchor="middle" class="s">CPU 60% · 3～10</text><path d="M1445 425 V385" class="l"/>
+  <rect x="315" y="500" width="230" height="95" class="db"/><text x="430" y="543" text-anchor="middle" class="t">MySQL</text><text x="430" y="573" text-anchor="middle" class="s">PVC · Source of truth</text>
+  <rect x="685" y="500" width="230" height="95" class="db"/><text x="800" y="543" text-anchor="middle" class="t">Redis</text><text x="800" y="573" text-anchor="middle" class="s">Cache · Rate limit</text>
+  <rect x="1055" y="500" width="230" height="95" class="db"/><text x="1170" y="543" text-anchor="middle" class="t">Kafka</text><text x="1170" y="573" text-anchor="middle" class="s">Outbox events</text>
+  <path d="M1400 380 C1400 440 430 420 430 495" class="l"/><path d="M1430 380 C1430 450 800 430 800 495" class="l"/><path d="M1460 380 C1460 460 1170 450 1170 495" class="l"/>
+  <rect x="505" y="710" width="250" height="100" class="o"/><text x="630" y="755" text-anchor="middle" class="t">Prometheus</text><text x="630" y="785" text-anchor="middle" class="s">自動探索 Pod metrics</text>
+  <rect x="910" y="710" width="250" height="100" class="o"/><text x="1035" y="755" text-anchor="middle" class="t">Grafana</text><text x="1035" y="785" text-anchor="middle" class="s">localhost:3001</text><path d="M755 760 H905" class="l"/>
+</svg>

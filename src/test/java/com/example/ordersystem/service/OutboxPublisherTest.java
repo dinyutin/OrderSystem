@@ -22,8 +22,7 @@ class OutboxPublisherTest {
     @Test
     void marksEventPublishedAfterKafkaAcknowledges() {
         OutboxEventEntity event = event();
-        when(repository.findTop100ByStatusAndNextAttemptAtLessThanEqualOrderById(
-                eq("PENDING"), any(Instant.class))).thenReturn(List.of(event));
+        when(repository.lockNextBatch(any(Instant.class))).thenReturn(List.of(event));
 
         publisher.publishPending();
 
@@ -35,8 +34,7 @@ class OutboxPublisherTest {
     @Test
     void retainsEventForRetryWhenKafkaIsUnavailable() {
         OutboxEventEntity event = event();
-        when(repository.findTop100ByStatusAndNextAttemptAtLessThanEqualOrderById(
-                eq("PENDING"), any(Instant.class))).thenReturn(List.of(event));
+        when(repository.lockNextBatch(any(Instant.class))).thenReturn(List.of(event));
         doThrow(new IllegalStateException("Kafka unavailable"))
                 .when(producer).publishOrderCreated(any());
 

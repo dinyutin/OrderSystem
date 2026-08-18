@@ -1,0 +1,46 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: order-gateway
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      connect-timeout: 500ms
+      timeout: 500ms
+  cloud:
+    gateway:
+      routes:
+        - id: order-service
+          uri: ${ORDER_SERVICE_URI:lb://order-service}
+          predicates:
+            - Path=/api/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@clientKeyResolver}"
+                redis-rate-limiter.replenishRate: ${RATE_LIMIT_REPLENISH:100}
+                redis-rate-limiter.burstCapacity: ${RATE_LIMIT_BURST:200}
+                redis-rate-limiter.requestedTokens: 1
+      metrics:
+        enabled: true
+    discovery:
+      client:
+        simple:
+          instances:
+            order-service:
+              - uri: ${ORDER_INSTANCE_1:http://localhost:8080}
+              - uri: ${ORDER_INSTANCE_2:http://localhost:8082}
+              - uri: ${ORDER_INSTANCE_3:http://localhost:8083}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,gateway
+  endpoint:
+    health:
+      probes:
+        enabled: true
