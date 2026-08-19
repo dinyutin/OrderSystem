@@ -6,6 +6,7 @@ resources:
   - infrastructure.yaml
   - order-service.yaml
   - gateway.yaml
+  - frontend.yaml
   - monitoring.yaml
 configMapGenerator:
   - name: prometheus-config

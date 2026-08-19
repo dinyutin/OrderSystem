@@ -30,6 +30,10 @@ public class OutboxEventEntity {
     private Instant publishedAt;
     @Column(length = 500)
     private String lastError;
+    @Column(nullable = false, length = 40)
+    private String eventType;
+    @Column(length = 30)
+    private String orderStatus;
 
     protected OutboxEventEntity() {}
 
@@ -41,8 +45,18 @@ public class OutboxEventEntity {
         this.quantity = quantity;
         this.remainingStock = remainingStock;
         this.status = "PENDING";
+        this.eventType = "ORDER_CREATED";
         this.nextAttemptAt = Instant.now();
         this.createdAt = Instant.now();
+    }
+
+    public static OutboxEventEntity lifecycle(String eventId, String aggregateId, long productId,
+            int quantity, int remainingStock, String eventType, String orderStatus) {
+        OutboxEventEntity event = new OutboxEventEntity(eventId, aggregateId, productId, quantity,
+                remainingStock);
+        event.eventType = eventType;
+        event.orderStatus = orderStatus;
+        return event;
     }
 
     public void published() {
@@ -71,4 +85,6 @@ public class OutboxEventEntity {
     public Instant getCreatedAt() { return createdAt; }
     public Instant getPublishedAt() { return publishedAt; }
     public String getLastError() { return lastError; }
+    public String getEventType() { return eventType; }
+    public String getOrderStatus() { return orderStatus; }
 }

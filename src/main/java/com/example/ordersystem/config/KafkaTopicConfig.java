@@ -17,6 +17,21 @@ public class KafkaTopicConfig {
     }
 
     @Bean
+    public NewTopic orderLifecycleTopic() {
+        return TopicBuilder.name("order-lifecycle").partitions(6).replicas(1).build();
+    }
+
+    @Bean
+    public NewTopic orderCommandsTopic() {
+        return TopicBuilder.name("order-commands").partitions(6).replicas(1).build();
+    }
+
+    @Bean
+    public NewTopic orderCommandsDltTopic() {
+        return TopicBuilder.name("order-commands.DLT").partitions(6).replicas(1).build();
+    }
+
+    @Bean
     public NewTopic orderCreatedDltTopic() {
         return TopicBuilder.name("order-created.DLT").partitions(3).replicas(1).build();
     }

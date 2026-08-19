@@ -3,5 +3,6 @@
 target
 *.iml
 gateway
+frontend
 k8s
 docs

@@ -1,6 +1,7 @@
 package com.example.ordersystem.entity;
 
 import jakarta.persistence.*;
+import java.time.Instant;
 
 @Entity
 @Table(name = "orders")
@@ -24,6 +25,11 @@ public class OrderEntity {
 
     @Column(unique = true, length = 100)
     private String idempotencyKey;
+
+    private Instant expiresAt;
+    private Instant paidAt;
+    @Column(nullable = false)
+    private Instant updatedAt = Instant.now();
 
     public OrderEntity() {}
 
@@ -56,4 +62,10 @@ public class OrderEntity {
     public void setStatus(String status) { this.status = status; }
     public String getIdempotencyKey() { return idempotencyKey; }
     public void setIdempotencyKey(String idempotencyKey) { this.idempotencyKey = idempotencyKey; }
+    public Instant getExpiresAt() { return expiresAt; }
+    public void setExpiresAt(Instant expiresAt) { this.expiresAt = expiresAt; }
+    public Instant getPaidAt() { return paidAt; }
+    public void setPaidAt(Instant paidAt) { this.paidAt = paidAt; }
+    public Instant getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 }

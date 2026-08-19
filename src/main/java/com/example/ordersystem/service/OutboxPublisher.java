@@ -2,6 +2,7 @@ package com.example.ordersystem.service;
 
 import com.example.ordersystem.entity.OutboxEventEntity;
 import com.example.ordersystem.event.OrderCreatedEvent;
+import com.example.ordersystem.event.OrderLifecycleEvent;
 import com.example.ordersystem.repository.OutboxEventRepository;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
@@ -34,9 +35,15 @@ public class OutboxPublisher {
         for (OutboxEventEntity item : repository.lockNextBatch(Instant.now())) {
             try {
                 redisService.setStock(item.getProductId(), item.getRemainingStock());
-                producer.publishOrderCreated(new OrderCreatedEvent(
-                        item.getAggregateId(), item.getProductId(), item.getQuantity(),
-                        item.getRemainingStock()));
+                if ("ORDER_CREATED".equals(item.getEventType())) {
+                    producer.publishOrderCreated(new OrderCreatedEvent(
+                            item.getAggregateId(), item.getProductId(), item.getQuantity(),
+                            item.getRemainingStock()));
+                } else {
+                    producer.publishLifecycle(new OrderLifecycleEvent(item.getEventType(),
+                            item.getAggregateId(), item.getProductId(), item.getQuantity(),
+                            item.getOrderStatus(), item.getCreatedAt()));
+                }
                 item.published();
             } catch (Exception exception) {
                 item.retry(exception.getMessage());

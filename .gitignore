@@ -35,3 +35,5 @@ build/
 # Local-only personal notes (never commit)
 docs/專案完整解說.md
 .DS_Store
+frontend/node_modules/
+frontend/dist/

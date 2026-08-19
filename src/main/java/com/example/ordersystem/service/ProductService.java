@@ -7,6 +7,8 @@ import com.example.ordersystem.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class ProductService {
     private final ProductRepository productRepository;
@@ -28,6 +30,11 @@ public class ProductService {
     public ProductEntity getRequiredProduct(long productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductEntity> getProducts() {
+        return productRepository.findAll();
     }
 
     @Transactional(readOnly = true)

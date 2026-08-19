@@ -112,6 +112,30 @@ services:
       - app3
       - redis
 
+  frontend:
+    build: ./frontend
+    image: order-frontend:local
+    environment:
+      BACKEND_URL: http://gateway:8081
+    ports:
+      - "5173:80"
+    depends_on:
+      - gateway
+      - loadtest-controller
+
+  loadtest-controller:
+    build:
+      context: .
+      dockerfile: load-test/controller/Dockerfile
+    image: order-loadtest-controller:local
+    environment:
+      BASE_URL: http://gateway:8081
+      K6_PROMETHEUS_RW_SERVER_URL: http://prometheus:9090/api/v1/write
+      K6_PROMETHEUS_RW_TREND_STATS: avg,min,max,med,p(90),p(95)
+      K6_PROMETHEUS_RW_STALE_MARKERS: "false"
+    depends_on:
+      - gateway
+
   prometheus:
     image: prom/prometheus:v3.4.0
     command:
@@ -152,7 +176,7 @@ services:
       K6_PROMETHEUS_RW_SERVER_URL: http://prometheus:9090/api/v1/write
       K6_PROMETHEUS_RW_TREND_STATS: avg,min,max,med,p(90),p(95)
       K6_PROMETHEUS_RW_STALE_MARKERS: "false"
-    command: ["run", "--out", "experimental-prometheus-rw", "/scripts/order-load.js"]
+    command: ["run", "--out", "experimental-prometheus-rw", "/scripts/async-checkout-load.js"]
     depends_on:
       - gateway
       - prometheus

@@ -1,0 +1,7 @@
+ALTER TABLE orders ADD COLUMN expires_at TIMESTAMP(6) NULL;
+ALTER TABLE orders ADD COLUMN paid_at TIMESTAMP(6) NULL;
+ALTER TABLE orders ADD COLUMN updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6);
+CREATE INDEX idx_orders_expiry ON orders (status, expires_at);
+
+ALTER TABLE outbox_events ADD COLUMN event_type VARCHAR(40) NOT NULL DEFAULT 'ORDER_CREATED';
+ALTER TABLE outbox_events ADD COLUMN order_status VARCHAR(30) NULL;

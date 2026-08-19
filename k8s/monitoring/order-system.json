@@ -7,14 +7,14 @@
       "title": "Order API requests / sec",
       "id": 1,
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
-      "targets": [{"expr": "sum(rate(http_server_requests_seconds_count{uri=\"/api/orders\"}[1m])) by (status)", "legendFormat": "HTTP {{status}}"}]
+      "targets": [{"expr": "sum(rate(http_server_requests_seconds_count{uri=~\"/api/orders.*\"}[1m])) by (status)", "legendFormat": "HTTP {{status}}"}]
     },
     {
       "type": "timeseries",
       "title": "Order API p95 latency",
       "id": 2,
       "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
-      "targets": [{"expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{uri=\"/api/orders\"}[1m])) by (le))", "legendFormat": "p95"}],
+      "targets": [{"expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{uri=~\"/api/orders.*\"}[1m])) by (le))", "legendFormat": "p95"}],
       "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []}
     },
     {
@@ -24,7 +24,10 @@
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
       "targets": [
         {"expr": "sum(rate(orders_successful_total[1m]))", "legendFormat": "created"},
-        {"expr": "sum(rate(orders_rejected_total[1m])) by (reason)", "legendFormat": "rejected: {{reason}}"}
+        {"expr": "sum(rate(orders_rejected_total[1m])) by (reason)", "legendFormat": "rejected: {{reason}}"},
+        {"expr": "sum(rate(async_orders_submitted_total[1m]))", "legendFormat": "queued"},
+        {"expr": "sum(rate(async_orders_completed_total[1m]))", "legendFormat": "consumer completed"},
+        {"expr": "sum(rate(async_orders_failed_total[1m])) by (stage)", "legendFormat": "async failed: {{stage}}"}
       ]
     },
     {
@@ -82,7 +85,7 @@
       "title": "Requests by Kubernetes pod",
       "id": 10,
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 32},
-      "targets": [{"expr": "sum(rate(http_server_requests_seconds_count{uri=\"/api/orders\"}[1m])) by (pod)", "legendFormat": "{{pod}}"}]
+      "targets": [{"expr": "sum(rate(http_server_requests_seconds_count{uri=~\"/api/orders.*\"}[1m])) by (pod)", "legendFormat": "{{pod}}"}]
     },
     {
       "type": "timeseries",
