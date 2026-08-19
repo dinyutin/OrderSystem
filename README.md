@@ -141,6 +141,8 @@ Grafana 會自動載入 `Order System Load Test` dashboard，包含：
 - JVM heap、CPU 與 Hikari connection pool
 - Outbox pending/dead backlog、Redis fallback 與 bulkhead 拒絕數
 
+另外保留獨立的 `k6 Load Testing Results` dashboard，顯示壓測端的即時 VUs、每秒請求數、HTTP failure、checks pass rate、平均／最大／中位數／最小延遲、p90、p95 與延遲趨勢。k6 透過 Prometheus Remote Write 傳送 metrics，原本的伺服器端 dashboard 不會被取代。
+
 ![Order System Grafana dashboard](docs/order-system-dashboard.png)
 
 ### 1,000 users / 10,000 orders
@@ -150,6 +152,8 @@ Grafana 會自動載入 `Order System Load Test` dashboard，包含：
 ### Gateway + 3 application replicas
 
 ![Gateway and three replicas load test](docs/order-system-gateway-1000-users-10000-orders.png)
+
+![k6 load testing dashboard](docs/k6-load-testing-dashboard.png)
 
 最新一次由 1,000 VUs 經 Gateway 建立 10,000 筆訂單：10,000 筆全數成功、HTTP failure 0%、庫存歸零、p95 1.71 秒、約 420 req/s。Grafana 中 Hikari 與 CPU 的多條線分別代表三個應用副本。
 
@@ -172,6 +176,8 @@ Grafana 會自動載入 `Order System Load Test` dashboard，包含：
 docker compose --profile observability up -d --build
 docker compose --profile loadtest run --rm k6
 ```
+
+執行時會自動啟動 Prometheus remote-write receiver；在 Grafana 切換到 `k6 Load Testing Results` 即可觀察 client-side metrics，切回 `Order System Load Test` 則查看 Gateway、應用與基礎設施 metrics。
 
 預設壓測設定為 1,000 VUs、共 10,000 筆訂單。k6 會建立庫存為 10,000 的獨立商品，並驗證：
 

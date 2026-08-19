@@ -114,14 +114,16 @@ services:
 
   prometheus:
     image: prom/prometheus:v3.4.0
-    command: ["--config.file=/etc/prometheus/prometheus.yml"]
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--web.enable-remote-write-receiver"
     volumes:
       - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
       - "9091:9090"
     depends_on:
       - gateway
-    profiles: ["observability"]
+    profiles: ["observability", "loadtest"]
 
   grafana:
     image: grafana/grafana:12.0.1
@@ -147,9 +149,13 @@ services:
       BASE_URL: http://gateway:8081
       VUS: ${K6_VUS:-1000}
       TOTAL_ORDERS: ${K6_TOTAL_ORDERS:-10000}
-    command: ["run", "/scripts/order-load.js"]
+      K6_PROMETHEUS_RW_SERVER_URL: http://prometheus:9090/api/v1/write
+      K6_PROMETHEUS_RW_TREND_STATS: avg,min,max,med,p(90),p(95)
+      K6_PROMETHEUS_RW_STALE_MARKERS: "false"
+    command: ["run", "--out", "experimental-prometheus-rw", "/scripts/order-load.js"]
     depends_on:
       - gateway
+      - prometheus
     profiles: ["loadtest"]
 
 volumes:

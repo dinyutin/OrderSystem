@@ -1,0 +1,96 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "panels": [
+    {
+      "type": "timeseries", "title": "Virtual Users", "id": 1,
+      "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0},
+      "targets": [{"expr": "max(k6_vus)", "legendFormat": "Active VUs"}],
+      "fieldConfig": {"defaults": {"unit": "short", "min": 0}, "overrides": []}
+    },
+    {
+      "type": "timeseries", "title": "Requests per Second", "id": 2,
+      "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0},
+      "targets": [{"expr": "sum(rate(k6_http_reqs_total[30s]))", "legendFormat": "requests / sec"}],
+      "fieldConfig": {"defaults": {"unit": "reqps", "min": 0}, "overrides": []}
+    },
+    {
+      "type": "timeseries", "title": "HTTP Failure Rate", "id": 3,
+      "gridPos": {"h": 8, "w": 6, "x": 12, "y": 0},
+      "targets": [{"expr": "avg(k6_http_req_failed_rate)", "legendFormat": "failed"}],
+      "fieldConfig": {"defaults": {"unit": "percentunit", "min": 0, "max": 1}, "overrides": []}
+    },
+    {
+      "type": "timeseries", "title": "Checks Pass Rate", "id": 4,
+      "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0},
+      "targets": [{"expr": "avg(k6_checks_rate)", "legendFormat": "passed"}],
+      "fieldConfig": {"defaults": {"unit": "percentunit", "min": 0, "max": 1}, "overrides": []}
+    },
+    {
+      "type": "stat", "title": "Average Response Time", "id": 5,
+      "gridPos": {"h": 5, "w": 4, "x": 0, "y": 8},
+      "targets": [{"expr": "max(k6_http_req_duration_avg)", "legendFormat": "mean"}],
+      "fieldConfig": {"defaults": {"unit": "s", "decimals": 2}, "overrides": []}
+    },
+    {
+      "type": "stat", "title": "Maximum Response Time", "id": 6,
+      "gridPos": {"h": 5, "w": 4, "x": 4, "y": 8},
+      "targets": [{"expr": "max(k6_http_req_duration_max)", "legendFormat": "max"}],
+      "fieldConfig": {"defaults": {"unit": "s", "decimals": 2}, "overrides": []}
+    },
+    {
+      "type": "stat", "title": "Median Response Time", "id": 7,
+      "gridPos": {"h": 5, "w": 4, "x": 8, "y": 8},
+      "targets": [{"expr": "max(k6_http_req_duration_med)", "legendFormat": "median"}],
+      "fieldConfig": {"defaults": {"unit": "s", "decimals": 2}, "overrides": []}
+    },
+    {
+      "type": "stat", "title": "Minimum Response Time", "id": 8,
+      "gridPos": {"h": 5, "w": 4, "x": 12, "y": 8},
+      "targets": [{"expr": "max(k6_http_req_duration_min)", "legendFormat": "min"}],
+      "fieldConfig": {"defaults": {"unit": "s", "decimals": 2}, "overrides": []}
+    },
+    {
+      "type": "stat", "title": "Response Time p90", "id": 9,
+      "gridPos": {"h": 5, "w": 4, "x": 16, "y": 8},
+      "targets": [{"expr": "max(k6_http_req_duration_p90)", "legendFormat": "p90"}],
+      "fieldConfig": {"defaults": {"unit": "s", "decimals": 2}, "overrides": []}
+    },
+    {
+      "type": "stat", "title": "Response Time p95", "id": 10,
+      "gridPos": {"h": 5, "w": 4, "x": 20, "y": 8},
+      "targets": [{"expr": "max(k6_http_req_duration_p95)", "legendFormat": "p95"}],
+      "fieldConfig": {"defaults": {"unit": "s", "decimals": 2}, "overrides": []}
+    },
+    {
+      "type": "timeseries", "title": "HTTP Response Time over Time", "id": 11,
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 13},
+      "targets": [
+        {"expr": "max(k6_http_req_duration_avg)", "legendFormat": "mean"},
+        {"expr": "max(k6_http_req_duration_med)", "legendFormat": "median"},
+        {"expr": "max(k6_http_req_duration_p90)", "legendFormat": "p90"},
+        {"expr": "max(k6_http_req_duration_p95)", "legendFormat": "p95"},
+        {"expr": "max(k6_http_req_duration_max)", "legendFormat": "max"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "s", "min": 0}, "overrides": []}
+    },
+    {
+      "type": "timeseries", "title": "Request Volume and Failures", "id": 12,
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 13},
+      "targets": [
+        {"expr": "sum(rate(k6_http_reqs_total[30s]))", "legendFormat": "requests / sec"},
+        {"expr": "sum(rate(k6_http_reqs_total[30s])) * avg(k6_http_req_failed_rate)", "legendFormat": "errors / sec"}
+      ],
+      "fieldConfig": {"defaults": {"min": 0}, "overrides": []}
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 41,
+  "tags": ["k6", "load-test", "prometheus"],
+  "templating": {"list": []},
+  "time": {"from": "now-15m", "to": "now"},
+  "timezone": "browser",
+  "title": "k6 Load Testing Results",
+  "uid": "k6-load-testing-results",
+  "version": 1
+}

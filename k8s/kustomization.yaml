@@ -24,5 +24,6 @@ configMapGenerator:
     namespace: order-system
     files:
       - order-system.json=monitoring/order-system.json
+      - k6-load-testing.json=monitoring/k6-load-testing.json
 generatorOptions:
   disableNameSuffixHash: true

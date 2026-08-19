@@ -72,6 +72,15 @@ k6 會先建立庫存 10,000 的獨立商品，再以 1,000 VUs 送出 10,000 �
 
 測試期間開啟 `http://localhost:3001`，選擇最近 15 分鐘並等待資料穩定後截圖。舊截圖不會被覆蓋，方便前後比對。
 
+Grafana 內有兩套 dashboard：
+
+| Dashboard | 觀察角度 | 主要內容 |
+|---|---|---|
+| `k6 Load Testing Results` | client／壓測產生器 | VUs、RPS、failure、checks、mean、max、median、min、p90、p95 |
+| `Order System Load Test` | server／系統內部 | Gateway、各應用副本、HTTP、JVM、CPU、Hikari、Outbox、Redis fallback |
+
+k6 使用 `experimental-prometheus-rw` output 將 metrics 即時寫入 Prometheus `/api/v1/write`。Prometheus 必須以 `--web.enable-remote-write-receiver` 啟動；延遲 Trend 會輸出 `avg,min,max,med,p(90),p(95)`，因此測試結束後仍可在 Grafana 比較這些統計值。
+
 ## 6. 驗證副本故障切換
 
 ```bash
